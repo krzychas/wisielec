@@ -6,4 +6,5 @@
 6 choinka =^===^=
 7 szabla ===^^=
 8 zlewozmywak =^=====_==^
-9 koniec ^=====
+9 wisielec =====^==
+10 koniec ^=====
