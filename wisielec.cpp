@@ -2,61 +2,63 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
-#include <limits> 
-#include <string>
-#include <vector>
+#include <limits> // Potrzebne do wyczyszczenia bufora wejściowego
 
 using namespace std;
 
+// Funkcja pomocnicza, która czyści bufor i czeka na ENTER
 void czekajNaEnter() {
-    cin.clear(); 
-    cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
-    cout << "Naciśnij ENTER, aby zakończyć..." << endl;
-    cin.get(); 
+    cin.clear(); // Resetuje ewentualne błędy strumienia
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Usuwa zalegające znaki (np. po cin >>)
+    cout << "Naciśnij ENTER, aby kontynuować..." << endl;
+    cin.get(); // Czeka na faktyczne naciśnięcie ENTER
 }
 
+// Funkcja główna programu wisielec
 int main()
 {
-    int k,l,nrzad;
+    int i,j,k,l,nrzad;
     int dlugosc, pozycja, liczbl;
-    string wpis; 
-    string nrlinii, wynik_str, maska_plik;
-    vector<string> wynik_pola; 
-    vector<string> maska_pola;  
+    char znak;
+    string nrlinii, wynik, maska;
 
     cout << "Gra w wisielca!" << endl;
     cout << "   ____" << endl;
     cout << "  |    |" << endl;
     cout << "  |    @" << endl;
-    cout << "__|__" << endl << endl;
+    cout << "__|__" << endl;
+    cout << endl;
     cout << "Krótka instrukcja:" << endl;
     cout << "Dopasuj litery do kształtu wyświetlonej poniżej maski." << endl;
-    cout << "Zadania w pliku wisielec-dane-pl.txt na pendriv-ie." << endl;
+    cout << "Zadania w pliku wisielec-dane.txt na pendriv-ie." << endl;
     cout << "Gramy do 6 nietrafionych liter :)" << endl;
     cout << endl;
-    
+
     fstream plik;
-    plik.open("/media/krzychas/DANE/wisielec-dane-pl.txt", ios::in);
+    plik.open("/media/krzychas/DANE/wisielec-dane.txt", ios::in);
 
     cout << "Sprawdzam, czy istnieje plik z zadaniami?..." << endl;
 
-    if(plik.good() == false) {
-        cout << "BŁĄD: Włóż pendrive z plikiem wisielec-dane-pl.txt a następnie uruchom program ponownie!" << endl;
+    if(plik.good() == false)
+    {
+        cout << "BŁĄD: Włóż pendrive z plikiem wisielec-dane.txt a następnie uruchom program ponownie!" << endl;
         czekajNaEnter();
         exit(0);
     }
+
     cout << "OK" << endl;
-
     cout << "Podaj nr zadania: ";
-    while (!(cin >> nrzad)) {
-        cout << "BŁĄD: Podaj poprawną liczbę całkowitą!" << endl;
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Podaj nr zadania: ";
-    }
+    cin >> nrzad;
 
-    while (plik >> nrlinii >> wynik_str >> maska_plik) {
-        l = stoi(nrlinii);
+    // Pierwsza pętla - szukanie zadania
+    while (!plik.eof())
+    {
+        plik >> nrlinii;
+        l = atoi(nrlinii.c_str());
+        plik >> wynik;
+        plik >> maska;
+        dlugosc = maska.length();
+
         if (l==nrzad)
         {
             cout << "Mam takie zadanie..." << endl;
@@ -68,19 +70,21 @@ int main()
     {
         cout << "Mam tylko " << nrlinii << " zadań." << endl;
         cout << "Podaj nr zadania: ";
-        while (!(cin >> nrzad)) {
-            cout << "BŁĄD: Podaj poprawną liczbę całkowitą!" << endl;
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Podaj nr zadania: ";
-        }
+        cin >> nrzad;
     }
-
+    
     plik.clear();
     plik.seekg(0, ios::beg);
+    
+    // Druga pętla - wczytywanie zadania
+    while (!plik.eof())
+    {
+        plik >> nrlinii;
+        l = atoi(nrlinii.c_str());
+        plik >> wynik;
+        plik >> maska;
+        dlugosc = maska.length();
 
-    while (plik >> nrlinii >> wynik_str >> maska_plik) {
-        l = stoi(nrlinii);
         if (l==nrzad)
         {
             cout << "Przedstawiam zadanie: " << nrlinii << endl;
@@ -94,54 +98,40 @@ int main()
         czekajNaEnter();
         exit(0);
     }
+
     plik.close();
 
-    for (int b = 0; b < (int)wynik_str.length(); b++) {
-        string litera = "";
-        litera += wynik_str[b];
-        if ((wynik_str[b] & 0xc0) == 0xc0) { 
-            litera += wynik_str[++b];
-        }
-        wynik_pola.push_back(litera);
+    for (i=0; i<dlugosc; i++)
+    {
+        cout << maska[i];
     }
-
-    for (int m = 0; m < (int)maska_plik.length(); m++) {
-        string m_znak = "";
-        m_znak += maska_plik[m];
-        maska_pola.push_back(m_znak);
-    }
-    
-    while(maska_pola.size() < wynik_pola.size()) maska_pola.push_back("_");
-    dlugosc = wynik_pola.size();
-    
-    for (int m = 0; m < dlugosc; m++) cout << maska_pola[m];
     cout << endl;
-    
     liczbl=0;
 
-    while (liczbl < 6) {
-        bool wygrana = true;
-        for(int m=0; m<dlugosc; m++) if(maska_pola[m] != wynik_pola[m]) wygrana = false;
-        if (wygrana) break;
-
+    // Główna pętla gry
+    for (j=1; j<=dlugosc+liczbl; j++)
+    {
         cout << "Podaj literę: ";
-        cin >> wpis; 
-        
+        cin >> znak;
         cout << "na pozycji: ";
-        while (!(cin >> pozycja)) {
-            cout << "BŁĄD: Pozycja musi być liczbą! Podaj ponownie: ";
-            cin.clear(); 
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
-        }
-        
-        int p = pozycja - 1;
 
-        if (p >= 0 && p < dlugosc && wynik_pola[p] == wpis) {
-            maska_pola[p] = wpis;
+        while (!(cin >> pozycja)) {
+            cout << "BŁĄD: Pozycja musi być liczbą!" << endl << endl;
+            cin.clear(); 
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Podaj ponownie pozycję: ";
+            }
+        pozycja--;
+
+        if (wynik[pozycja]==znak)
+        {
+            maska[pozycja]=znak;
             cout << endl << "Zadanie " << nrlinii << " cd.: ";
-            for (k=0; k<dlugosc; k++) cout << maska_pola[k];
+            for (k=0; k<dlugosc; k++) cout << maska[k];
             cout << endl;
-        } else {
+        }
+        else
+        {
             liczbl++;
             cout << "to jest " << liczbl <<" nietrafiona :)" << endl << endl;
 
@@ -181,18 +171,17 @@ int main()
             }
             
             cout << endl << "Zadanie " << nrlinii << " cd.: ";
-            for (k=0; k<dlugosc; k++) cout << maska_pola[k];
+            for (k=0; k<dlugosc; k++) cout << maska[k];
             cout << endl;
         }
     }
 
-    bool wygrana_koniec = true;
-    for(int m=0; m<dlugosc; m++) if(maska_pola[m] != wynik_pola[m]) wygrana_koniec = false;
-
-    if (wygrana_koniec) cout << "Gratuluję sukcesu!" << endl;
-    else cout << "PRZEGRANA. Hasło to: " << wynik_str << "." << endl;
+    if (liczbl!=6) cout << "Gratuluję sukcesu!" << endl;
+    else cout << "PRZEGRANA. Hasło to: " << wynik << "." << endl;
+    cout << "KONIEC" << endl;
     
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    // Ostateczne czekanie na zamknięcie
     czekajNaEnter();
+
     return 0;
 }
