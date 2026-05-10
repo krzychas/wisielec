@@ -35,7 +35,7 @@ int main()
     cout << endl;
 
     fstream plik;
-    plik.open("/media/krzychas/DANE/wisielec-dane.txt", ios::in);
+    plik.open("/mnt/usb/wisielec-dane.txt", ios::in);
 
     cout << "Sprawdzam, czy istnieje plik z zadaniami?..." << endl;
 
