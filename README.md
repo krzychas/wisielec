@@ -1,1 +1,1 @@
-Mój pierwszy project to gra w Wisielca.
+Mój pierwszy projekt to gra w Wisielca.
