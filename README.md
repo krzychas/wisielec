@@ -1,1 +1,1 @@
-Mój pierwszy projekt to gra w Wisielca.
+Moje pierwsze repozytorium to kod C++ gry w Wisielca.
